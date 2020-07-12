@@ -3,14 +3,14 @@ const Datastore = require('nedb');
 const fetch = require('node-fetch')
 require('dotenv').config()
 
-const { response, request } = require('express');
+const PORT = process.env.PORT
 
 const database = new Datastore('database.db');
 const formdata = new Datastore('formdata.db')
 formdata.loadDatabase();
 database.loadDatabase();
 const app = express()
-app.listen(3000, () => console.log('litsening at 3000'))
+app.listen(PORT || 3000, () => console.log(`litsening at ${PORT}`))
  
 app.use(express.static('public'))
 app.use(express.json({limit: '1mb'}));
