@@ -1,0 +1,100 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+  integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+  crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+  integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+  crossorigin=""></script>
+  <style>
+      #mapid{
+          height: 200px;
+          width : 200px;
+      }
+  </style>
+    <title>Document</title>
+</head>
+<body>
+   <h1>Your Current positon:</h1>
+   <p>Latitude: <span id='lat'></span></p>
+   <p>Longitude: <span id ='lon'></span></p>
+   <button id='btn'> send</button>
+   <div id="mapid"></div>
+   <div>
+    <span id='location'></span>
+    <span id='temp'></span>
+    <span id ='time'></span>
+    <span id = 'description'></span>
+    <span></span>
+</div>
+    <script>
+         var mymap = L.map('mapid')
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(mymap);
+
+        if('geolocation' in navigator){
+            navigator.geolocation.getCurrentPosition((position)=>{
+                const lat = position.coords.latitude
+                const lgn =  position.coords.longitude
+                mymap.setView([position.coords.latitude, position.coords.longitude], 10);
+                L.marker([position.coords.latitude, position.coords.longitude]).addTo(mymap);
+                document.getElementById('lat').innerText = position.coords.latitude
+                document.getElementById('lon').innerText = position.coords.longitude
+                document.getElementById('btn').addEventListener('click', abc)
+                function abc(){
+                const data = { lat, lgn};
+                const options = {
+                    method: 'POST',
+                    headers: {
+                                'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                }
+                fetch('/api', options)
+                .then(response => {
+                    return response.json()})
+                    .then(data =>{
+                        console.log(data)
+                        const {lat, lgn} = data
+                        getdata(lat, lgn)
+                    })
+                }
+                
+            });
+            async function getdata(lon, lgn){
+           const res = await fetch(`/weather/${lon},${lgn}`)
+           const data = await res.json()
+           console.log(data)
+           document.getElementById('location').innerText = data.timezone
+           document.getElementById('temp').innerText = `${Math.floor((Number(data.current.temp) - 273))} C`
+           document.getElementById('description').innerText = `${data.current.weather[0].main}(${data.current.weather[0].description})`
+           var today = new Date();
+           var time = `${today.getHours().toString()}: ${today.getMinutes().toString()}`
+           document.getElementById('time').innerText = time
+                function convert(unix_timestamp){
+              
+                    // Create a new JavaScript Date object based on the timestamp
+                    // multiplied by 1000 so that the argument is in milliseconds, not seconds.
+                    var date = new Date(unix_timestamp * 1000);
+                    // Hours part from the timestamp
+                    var hours = date.getHours();
+                    // Minutes part from the timestamp
+                    var minutes = "0" + date.getMinutes();
+                    // Seconds part from the timestamp
+                    var seconds = "0" + date.getSeconds();
+
+                    // Will display time in 10:30:23 format
+                    var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+                    return formattedTime
+
+                    console.log(formattedTime);
+    }
+       }
+        }else{
+            console.log('no')
+        }
+    </script>
+</body>
+</html>

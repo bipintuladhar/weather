@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+   <div>
+       <label for='latitude'>Latitude:
+        <input type="text" id='latitude'>
+       </label>
+       <label for='long'>Longitude:
+        <input type="text" id='long'>
+       </label>
+       <button id='mybtn'>Submit Address</button>
+       <div>
+           Laitude<span id='lat'></span>
+           Longitude<span id='lgn'></span>
+       </div>
+       <div>
+           <span id='location'></span>
+           <span id='temp'></span>
+           <span id ='time'></span>
+           <span></span>
+           <span></span>
+       </div>
+   </div>
+    <SCript>
+        const longitude = document.getElementById('long')
+        const latitude = document.getElementById('latitude')
+        const lat = document.getElementById('lat')
+        const lgn = document.getElementById('lgn')
+        const mybtn = document.getElementById('mybtn')
+        mybtn.addEventListener('click',() =>{
+            const a = lat.innerText = Number(latitude.value)
+            const b = lgn.innerText = Number(longitude.value)
+            getdata(a, b)
+        })
+       async function getdata(lon, lgn){
+           const res = await fetch(`/weather/${lon},${lgn}`)
+           const data = await res.json()
+           console.log(data)
+           document.getElementById('location').innerText = data.timezone
+           document.getElementById('temp').innerText = `${(Number(data.current.temp) - 283)} C`
+           var today = new Date();
+           var time = `${today.getHours().toString()}: ${today.getMinutes().toString()}`
+           document.getElementById('time').innerText = time
+       }
+       
+    </SCript>
+</body>
+</html>
